@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MobiMarket | Online Shopping</title>
+<style>
+:root {
+    --primary-navy: #1a2a3a;
+    --accent-green: #27ae60;
+    --white: #ffffff;
+    --bg-light: #f4f7f6;
+    --accent-gold: #c9a24d;
+}
+body { margin:0; font-family:'Segoe UI', Arial, sans-serif; background: var(--bg-light); color:#333; }
+header { background: var(--primary-navy); padding:20px; text-align:center; color:white; position: sticky; top:0; z-index: 100; }
+header h1 { margin:0; font-size:24px; letter-spacing:1px; display:inline-block; vertical-align: middle; }
+header img { height:40px; vertical-align: middle; margin-right:10px; }
+.container { max-width:1200px; margin:20px auto; padding:0 15px; }
+
+/* Search & Filter */
+.search-bar { display:flex; gap:10px; margin-bottom:20px; }
+.search-bar input, .search-bar select { flex:1; padding:10px; border-radius:6px; border:1px solid #ccc; }
+
+/* Products Grid */
+.products { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:20px; }
+.product-card { background:white; border-radius:10px; padding:10px; box-shadow:0 5px 15px rgba(0,0,0,0.05); }
+.product-card img { width:100%; border-radius:8px; cursor:pointer; margin-bottom:5px; }
+.product-card h3 { font-size:16px; margin:5px 0; }
+.product-card p { font-size:14px; margin:2px 0; }
+.product-card button { background:var(--accent-green); color:white; border:none; padding:10px; width:100%; border-radius:6px; cursor:pointer; font-weight:bold; }
+.product-card button:hover { background:#2ecc71; }
+
+/* Modal */
+.modal { display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
+.modal-box { background:white; width:90%; max-width:400px; margin:10% auto; padding:20px; border-radius:10px; position:relative; }
+.close-btn { position:absolute; right:10px; top:5px; font-size:24px; cursor:pointer; }
+
+/* Admin Login */
+#adminLogin { display:none; margin-bottom:20px; }
+#adminLogin input { padding:10px; width:100%; margin:5px 0; border-radius:6px; border:1px solid #ccc; }
+#adminLogin button { background:var(--accent-gold); color:white; width:100%; padding:10px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
+
+/* Add Product Form */
+#addProduct { display:none; margin-top:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.05); }
+#addProduct input, #addProduct select { width:100%; margin:5px 0; padding:10px; border-radius:6px; border:1px solid #ccc; }
+#addProduct button { background:var(--accent-green); color:white; width:100%; padding:10px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
+
+/* Footer */
+footer { background: var(--primary-navy); color:white; padding:30px 20px; text-align:center; margin-top:40px; }
+footer p { margin:5px 0; font-size:14px; }
+
+/* Carousel Dots */
+.carousel-dots { text-align:center; margin-top:5px; }
+.carousel-dot { display:inline-block; width:8px; height:8px; background:#ccc; border-radius:50%; margin:0 3px; cursor:pointer; }
+.carousel-dot.active { background:var(--accent-green); }
+
+</style>
+</head>
+<body>
+
+<header>
+<img src="https://via.placeholder.com/40" alt="Logo">
+<h1>MobiMarket</h1>
+</header>
+
+<div class="container">
+    <!-- Search & Filter -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search products...">
+        <select id="categoryFilter">
+            <option value="">All Categories</option>
+            <option value="Shoes">Shoes</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Bags">Bags & Accessories</option>
+            <option value="Beauty">Beauty</option>
+        </select>
+    </div>
+
+    <!-- Admin Login -->
+    <div id="adminLogin">
+        <input type="password" id="adminPass" placeholder="Enter Admin Password">
+        <button onclick="adminLogin()">Login as Admin</button>
+    </div>
+
+    <!-- Add Product Form -->
+    <div id="addProduct">
+        <h3>Add New Product</h3>
+        <input type="text" id="prodName" placeholder="Product Name">
+        <input type="number" id="prodPrice" placeholder="Price">
+        <select id="prodCat">
+            <option value="Shoes">Shoes</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Bags">Bags & Accessories</option>
+            <option value="Beauty">Beauty</option>
+        </select>
+        <input type="text" id="prodImages" placeholder="Image URLs (comma separated)">
+        <button onclick="addProduct()">Add Product</button>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products" id="productGrid"></div>
+</div>
+
+<footer>
+    <p>Contact via WhatsApp: +254101965027</p>
+    <p>Email: <strong>Mobimarkethub@gmail.com</strong></p>
+    <p>&copy; 2026 MobiMarket</p>
+</footer>
+
+<script>
+// Sample Products
+let products = [
+    {name:"Red High Heels",price:3500,category:"Shoes",images:["https://via.placeholder.com/220x150?text=Heels1","https://via.placeholder.com/220x150?text=Heels2","https://via.placeholder.com/220x150?text=Heels3"]},
+    {name:"Blue Sneakers",price:4000,category:"Shoes",images:["https://via.placeholder.com/220x150?text=Sneakers1","https://via.placeholder.com/220x150?text=Sneakers2","https://via.placeholder.com/220x150?text=Sneakers3"]},
+    {name:"Floral Dress",price:2500,category:"Clothing",images:["https://via.placeholder.com/220x150?text=Dress1","https://via.placeholder.com/220x150?text=Dress2","https://via.placeholder.com/220x150?text=Dress3"]},
+    {name:"Leather Handbag",price:5500,category:"Bags",images:["https://via.placeholder.com/220x150?text=Bag1","https://via.placeholder.com/220x150?text=Bag2","https://via.placeholder.com/220x150?text=Bag3"]},
+    {name:"Lipstick Set",price:1200,category:"Beauty",images:["https://via.placeholder.com/220x150?text=Lip1","https://via.placeholder.com/220x150?text=Lip2","https://via.placeholder.com/220x150?text=Lip3"]}
+];
+
+// Display Products
+function displayProducts() {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML="";
+    let search = document.getElementById('searchInput').value.toLowerCase();
+    let filter = document.getElementById('categoryFilter').value;
+    products.forEach((p,i)=>{
+        if((p.name.toLowerCase().includes(search)) && (filter===""||p.category===filter)){
+            let prodDiv=document.createElement('div');
+            prodDiv.className="product-card";
+            prodDiv.innerHTML=`
+                <div class="carousel" id="carousel${i}">
+                    <img src="${p.images[0]}" id="img${i}">
+                    <div class="carousel-dots" id="dots${i}"></div>
+                </div>
+                <h3>${p.name}</h3>
+                <p>Price: KES ${p.price}</p>
+                <p>Deposit (10%): KES ${(p.price*0.1).toFixed(2)}</p>
+                <button onclick="orderProduct('${p.name}',${p.price})">Order Now</button>
+            `;
+            grid.appendChild(prodDiv);
+
+            // Carousel dots
+            let dotsDiv=document.getElementById(`dots${i}`);
+            p.images.forEach((img,j)=>{
+                let dot=document.createElement('span');
+                dot.className="carousel-dot";
+                if(j==0) dot.classList.add('active');
+                dot.onclick=()=>{document.getElementById(`img${i}`).src=p.images[j]; Array.from(dotsDiv.children).forEach(d=>d.classList.remove('active')); dot.classList.add('active');};
+                dotsDiv.appendChild(dot);
+            });
+        }
+    });
+}
+displayProducts();
+
+// Search & Filter
+document.getElementById('searchInput').addEventListener('input',displayProducts);
+document.getElementById('categoryFilter').addEventListener('change',displayProducts);
+
+// Order via WhatsApp
+function orderProduct(name,price){
+    let deposit = (price*0.1).toFixed(2);
+    let msg = `Hello PrimeLinkCredit, I want to order "${name}". Total price: KES ${price}. Deposit: KES ${deposit}.`;
+    window.open(`https://wa.me/254101965027?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// Admin Login
+function adminLogin(){
+    let pass=document.getElementById('adminPass').value;
+    if(pass==="Sirma@3547"){
+        document.getElementById('addProduct').style.display='block';
+        alert("Admin Access Granted");
+    } else alert("Wrong Password");
+}
+
+// Add Product
+function addProduct(){
+    let n=document.getElementById('prodName').value;
+    let p=parseFloat(document.getElementById('prodPrice').value);
+    let c=document.getElementById('prodCat').value;
+    let imgs=document.getElementById('prodImages').value.split(",");
+    if(!n||!p||!c||imgs.length===0) return alert("Fill all fields");
+    products.push({name:n,price:p,category:c,images:imgs});
+    displayProducts();
+    document.getElementById('prodName').value=""; document.getElementById('prodPrice').value=""; document.getElementById('prodImages').value=""; 
+    alert("Product Added!");
+}
+</script>
+</body>
+</html>
